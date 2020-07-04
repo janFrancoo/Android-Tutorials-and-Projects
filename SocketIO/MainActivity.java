@@ -21,8 +21,6 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Socket mSocket;
-
     private EditText inputMessage;
 
     @Override
@@ -33,18 +31,22 @@ public class MainActivity extends AppCompatActivity {
         Button button = findViewById(R.id.sendButton);
         inputMessage = findViewById(R.id.inputText);
 
+        String userId = "5eff14d255ad5b2d840a2257";
         String chatId = "5efeeef8b1631c3cfcbb84f7_5eff14d255ad5b2d840a2257";
         String accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlZmYxNGQyNTVhZDViMmQ4NDBhMjI1NyIsImVtYWlsIjoicG9pc29ud2VlYkBnbWFpbC5jb20iLCJ1c2VybmFtZSI6IkphbkZyYW5jbyIsImlzVmVyaWZpZWQiOnRydWUsInN1YkV4cGlyZSI6IjIwMjAtMDctMDZUMTU6NTY6NDUuNDk5WiIsImNyZWRpdHMiOjUsImlhdCI6MTU5Mzg3NTc2OCwiZXhwIjoxNTkzODc5MzY4fQ.EDxOTtJL_x8yDtiMwOYOXVMNbJlNhTkrA_mx3IaBiGE";
         IO.Options options = new IO.Options();
         options.forceNew = true;
         options.reconnectionAttempts = Integer.MAX_VALUE;
         options.timeout = 10000;
-        options.query = "auth=" + accessToken + "&chatId=" + chatId;
+        options.query = "auth=" + accessToken;
 
         try {
-            mSocket = IO.socket("http://192.168.1.38:5000", options);
+            Socket mSocket = IO.socket("http://192.168.1.38:5000", options);
+            mSocket.emit("listen_channnels", userId);
+            mSocket.emit("listen_channel", chatId);
             mSocket.on("new_message", listenMessages);
-            mSocket.on(chatId, listenMessages);
+            mSocket.on("new_chat", listenChats);
+
             mSocket.connect();
             Log.d("NEW_MSG", "Connected");
             mSocket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
@@ -95,6 +97,29 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("NEW_MSG", data.getString("message"));
                         if (data.has("sender"))
                             Log.d("NEW_MSG", data.getString("sender"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener listenChats = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+
+                    try {
+                        if (data.has("success"))
+                            Log.d("NEW_MSG", data.getString("success"));
+                        if (data.has("message"))
+                            Log.d("NEW_MSG", data.getString("message"));
+                        if (data.has("chatId"))
+                            Log.d("NEW_MSG", data.getString("chatId"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
