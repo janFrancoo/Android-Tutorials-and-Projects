@@ -33,9 +33,18 @@ public class MainActivity extends AppCompatActivity {
         Button button = findViewById(R.id.sendButton);
         inputMessage = findViewById(R.id.inputText);
 
+        String chatId = "5efeeef8b1631c3cfcbb84f7_5eff14d255ad5b2d840a2257";
+        String accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlZmYxNGQyNTVhZDViMmQ4NDBhMjI1NyIsImVtYWlsIjoicG9pc29ud2VlYkBnbWFpbC5jb20iLCJ1c2VybmFtZSI6IkphbkZyYW5jbyIsImlzVmVyaWZpZWQiOnRydWUsInN1YkV4cGlyZSI6IjIwMjAtMDctMDZUMTU6NTY6NDUuNDk5WiIsImNyZWRpdHMiOjUsImlhdCI6MTU5Mzg3NTc2OCwiZXhwIjoxNTkzODc5MzY4fQ.EDxOTtJL_x8yDtiMwOYOXVMNbJlNhTkrA_mx3IaBiGE";
+        IO.Options options = new IO.Options();
+        options.forceNew = true;
+        options.reconnectionAttempts = Integer.MAX_VALUE;
+        options.timeout = 10000;
+        options.query = "auth=" + accessToken + "&chatId=" + chatId;
+
         try {
-            mSocket = IO.socket("http://192.168.1.38:5000/api");
-            mSocket.on("message", listenMessages);
+            mSocket = IO.socket("http://192.168.1.38:5000", options);
+            mSocket.on("new_message", listenMessages);
+            mSocket.on(chatId, listenMessages);
             mSocket.connect();
             Log.d("NEW_MSG", "Connected");
             mSocket.io().on(Manager.EVENT_TRANSPORT, new Emitter.Listener() {
@@ -68,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             return;
 
         inputMessage.setText("");
-        mSocket.emit("message", message);
+        // post /chat/message
     }
 
     private Emitter.Listener listenMessages = new Emitter.Listener() {
@@ -78,16 +87,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
-                    String sender;
-                    String message;
-                    try {
-                        sender = data.getString("sender");
-                        message = data.getString("message");
-                    } catch (JSONException e) {
-                        return;
-                    }
 
-                    Log.d("NEW_MSG", sender + " " + message);
+                    try {
+                        if (data.has("success"))
+                            Log.d("NEW_MSG", data.getString("success"));
+                        if (data.has("message"))
+                            Log.d("NEW_MSG", data.getString("message"));
+                        if (data.has("sender"))
+                            Log.d("NEW_MSG", data.getString("sender"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }
