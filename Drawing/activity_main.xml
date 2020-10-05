@@ -14,11 +14,23 @@
         android:background="#ffffff" />
 
     <Button
+        android:id="@+id/colorPickButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp"
+        android:text="@string/color_pick"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toTopOf="@+id/saveButton"
+        app:layout_constraintEnd_toEndOf="@+id/saveButton" />
+
+    <Button
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save"
         android:textSize="16sp"
+        android:textAllCaps="false"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/changeModeButton"
         app:layout_constraintEnd_toEndOf="@+id/changeModeButton" />
@@ -33,6 +45,17 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/thicknessSB"
         app:layout_constraintEnd_toEndOf="@+id/thicknessSB" />
+
+    <Button
+        android:id="@+id/undoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/undo"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/colorPickButton"
+        app:layout_constraintEnd_toEndOf="@+id/colorPickButton" />
 
     <SeekBar
         android:id="@+id/thicknessSB"
