@@ -2,13 +2,21 @@ package com.janfranco.canvasdrawexample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.SeekBar;
+
+import com.flask.colorpicker.ColorPickerView;
+import com.flask.colorpicker.OnColorSelectedListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,6 +79,40 @@ public class MainActivity extends AppCompatActivity {
                 saveImage();
             }
         });
+
+        Button colorPickButton = findViewById(R.id.colorPickButton);
+        colorPickButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openColorPickerPopUp();
+            }
+        });
+
+        Button undoButton = findViewById(R.id.undoButton);
+        undoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawingView.undo();
+            }
+        });
+    }
+
+    private void openColorPickerPopUp() {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        @SuppressLint("InflateParams")
+        View popUpView = inflater.inflate(R.layout.pop_up_color_pick, null);
+
+        ColorPickerView colorPickerView = popUpView.findViewById(R.id.color_picker_view);
+        colorPickerView.addOnColorSelectedListener(new OnColorSelectedListener() {
+            @Override
+            public void onColorSelected(int selectedColor) {
+                drawingView.setColor(selectedColor);
+            }
+        });
+
+        final PopupWindow popUp = new PopupWindow(popUpView, LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT, true);
+        popUp.showAtLocation(popUpView, Gravity.START, 16, 0);
     }
 
     private void saveImage() {
