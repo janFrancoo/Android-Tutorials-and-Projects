@@ -1,0 +1,16 @@
+package com.janfranco.daggerpractice.di.main;
+
+import com.janfranco.daggerpractice.ui.main.posts.PostsFragment;
+import com.janfranco.daggerpractice.ui.main.profile.ProfileFragment;
+
+import dagger.Module;
+import dagger.android.ContributesAndroidInjector;
+
+@Module
+public abstract class MainFragmentBuildersModule {
+    @ContributesAndroidInjector
+    abstract ProfileFragment contributeProfileFragment();
+
+    @ContributesAndroidInjector
+    abstract PostsFragment contributePostsFragment();
+}
