@@ -4,11 +4,11 @@ import GetBooksQuery
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
-import com.apollographql.apollo.ApolloCall
 import com.apollographql.apollo.ApolloClient
-import com.apollographql.apollo.api.Response
-import com.apollographql.apollo.exception.ApolloException
+import com.apollographql.apollo.coroutines.await
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 
 private const val TAG = "GRAPH_QUERY"
@@ -19,24 +19,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setupApollo()
-                .query(GetBooksQuery
-                        .builder()
-                        .build())
-                .enqueue(object : ApolloCall.Callback<GetBooksQuery.Data>() {
-                    override fun onResponse(response: Response<GetBooksQuery.Data>) {
-                        val books = response.data?.books()
-                        books?.let { bookList ->
-                            bookList.forEach { book ->
-                                Log.d(TAG, "onResponse: ${book.name()}")
-                            }
-                        }
-                    }
-
-                    override fun onFailure(e: ApolloException) {
-                        Log.d(TAG, "onFailure: ${e.localizedMessage}")
-                    }
-                })
+        GlobalScope.launch {
+            getBooks()
+        }
     }
 
     private fun setupApollo(): ApolloClient {
@@ -47,6 +32,13 @@ class MainActivity : AppCompatActivity() {
                 .serverUrl("http://192.168.1.35:5000/graphql")
                 .okHttpClient(okHttp)
                 .build()
+    }
+
+    private suspend fun getBooks() {
+        coroutineScope {
+            val resp = setupApollo().query(GetBooksQuery()).await()
+            Log.d(TAG, "getBooks: ${resp.data?.books()}")
+        }
     }
 
 }
